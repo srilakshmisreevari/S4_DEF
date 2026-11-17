@@ -27,7 +27,7 @@ only published in 100 so far, change `client` to "100", or copy the publication 
 ## Deploy to BTP
 1. Cloud Connector: allow the path `/sap/opu/odata4/sap/zui_otc_scheduled_orders_o4/` on the DFD virtual host.
 2. Destination `DFD_OTC_SCHED_ORDERS` (OnPremise, PrincipalPropagation, `sap-client`). Use the same setup as `DFD_BRF_VIEWER`.
-3. In `mta.yaml`, replace `<region>` in the redirect URIs.
+3. In `mta.yaml`, redirect URIs are set for region us10.
 4. `npm run build:mta`, `cf login`, `npm run deploy`.
 5. Work Zone: add the app (inbound `ScheduledOrders-display`) to a content channel, role and group.
 

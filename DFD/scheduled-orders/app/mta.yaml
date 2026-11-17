@@ -100,11 +100,11 @@ resources:
         xsappname: zotc-schedorders-${space}
         tenant-mode: dedicated
         oauth2-configuration:
-          # Replace <region> with the subaccount's Cloud Foundry region (e.g. us10)
+          # Cloud Foundry region us10.
           # and add the Work Zone site URL if it is on a different domain.
           redirect-uris:
-            - https://*.cfapps.<region>.hana.ondemand.com/**
-            - https://*.launchpad.cfapps.<region>.hana.ondemand.com/**
+            - https://*.cfapps.us10.hana.ondemand.com/**
+            - https://*.launchpad.cfapps.us10.hana.ondemand.com/**
             - https://*.build.cloud.sap/**
 
 parameters:
