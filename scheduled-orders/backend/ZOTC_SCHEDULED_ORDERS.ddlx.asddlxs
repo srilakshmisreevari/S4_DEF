@@ -1,0 +1,210 @@
+//----------------------------------------------------------------------
+// Change log
+// Date       | Author              | Request    | Description
+// 2026-11-17 | Srilakshmi Sreevari | DFDK908431 | Created - UI annotations
+//            |                     |            | (moved from the view) and
+//            |                     |            | business labels for all
+//            |                     |            | fields of the scheduled
+//            |                     |            | order lines
+//----------------------------------------------------------------------
+@Metadata.layer: #CUSTOMER
+@UI.headerInfo: { typeName: 'Scheduled Order Line', typeNamePlural: 'Scheduled Order Lines',
+                  title: { type: #STANDARD, value: 'SalesOrder' },
+                  description: { type: #STANDARD, value: 'SoldToPartyName' } }
+@UI.presentationVariant: [{ sortOrder: [{ by: 'DueDate', direction: #ASC }],
+                            visualizations: [{ type: #AS_LINEITEM }] }]
+annotate entity ZOTC_SCHEDULED_ORDERS with
+{
+  @EndUserText.label: 'Sales Order'
+  @UI.facet: [{ id: 'LineData', purpose: #STANDARD, type: #IDENTIFICATION_REFERENCE,
+                label: 'Order Line', position: 10 }]
+  @UI.lineItem: [{ position: 10 }]
+  @UI.identification: [{ position: 10 }]
+  @UI.selectionField: [{ position: 10 }]
+  SalesOrder;
+  @EndUserText.label: 'Item'
+  @UI.lineItem: [{ position: 20 }]
+  @UI.identification: [{ position: 20 }]
+  SalesOrderItem;
+  @EndUserText.label: 'Schedule Line'
+  @UI.lineItem: [{ position: 30 }]
+  @UI.identification: [{ position: 30 }]
+  ScheduleLine;
+
+  @EndUserText.label: 'Order Type'
+  SalesOrderType;
+  @EndUserText.label: 'Sales Organization'
+  @UI.selectionField: [{ position: 90 }]
+  SalesOrganization;
+  @EndUserText.label: 'Distribution Channel'
+  DistributionChannel;
+  @EndUserText.label: 'Division'
+  OrganizationDivision;
+
+  @EndUserText.label: 'Supply Type'
+  @UI.selectionField: [{ position: 30 }]
+  @UI.identification: [{ position: 40 }]
+  SupplyType;
+  @EndUserText.label: 'Item Category'
+  SalesOrderItemCategory;
+  @EndUserText.label: 'Schedule Line Category'
+  ScheduleLineCategory;
+  @EndUserText.label: 'Product'
+  @UI.lineItem: [{ position: 50 }]
+  @UI.identification: [{ position: 50 }]
+  Product;
+
+  @EndUserText.label: 'Terminal'
+  @UI.selectionField: [{ position: 40 }]
+  @UI.identification: [{ position: 60 }]
+  TerminalID;
+  @EndUserText.label: 'Terminal Name'
+  @UI.identification: [{ position: 70 }]
+  TerminalName;
+  @EndUserText.label: 'Terminal Type'
+  TerminalType;
+  @EndUserText.label: 'Terminal City'
+  TerminalCity;
+  @EndUserText.label: 'Terminal Region'
+  TerminalRegion;
+  @EndUserText.label: 'Shipping Point'
+  ShippingPoint;
+  @EndUserText.label: 'Shipping Point Name'
+  ShippingPointName;
+  @EndUserText.label: 'Plant'
+  Plant;
+  @EndUserText.label: 'Plant Name'
+  PlantName;
+
+  @EndUserText.label: 'Customer'
+  @UI.selectionField: [{ position: 50 }]
+  @UI.identification: [{ position: 80 }]
+  SoldToParty;
+  @EndUserText.label: 'Customer Name'
+  @UI.identification: [{ position: 90 }]
+  SoldToPartyName;
+  @EndUserText.label: 'Ship-To Party'
+  ShipToParty;
+  @EndUserText.label: 'Ship-To Name'
+  @UI.identification: [{ position: 100 }]
+  ShipToPartyName;
+  @EndUserText.label: 'Ship-To City'
+  @UI.identification: [{ position: 110 }]
+  ShipToCity;
+  @EndUserText.label: 'Ship-To Region'
+  @UI.identification: [{ position: 120 }]
+  ShipToRegion;
+  @EndUserText.label: 'Ship-To Postal Code'
+  ShipToPostalCode;
+  @EndUserText.label: 'Ship-To Country'
+  ShipToCountry;
+  @EndUserText.label: 'Manual Ship-To Address'
+  ShipToAddrIsDocSpecific;
+  @EndUserText.label: 'Incoterms'
+  IncotermsClassification;
+  @EndUserText.label: 'Incoterms Location'
+  IncotermsLocation1;
+
+  @EndUserText.label: 'Due Date'
+  @UI.lineItem: [{ position: 40 }]
+  @UI.selectionField: [{ position: 20 }]
+  @UI.identification: [{ position: 130 }]
+  DueDate;
+  @EndUserText.label: 'Past Due'
+  IsPastDue;
+  @EndUserText.label: 'Due Window'
+  @UI.selectionField: [{ position: 15 }]
+  @UI.identification: [{ position: 140 }]
+  DueWindow;
+
+  @EndUserText.label: 'Open Qty'
+  @UI.lineItem: [{ position: 60 }]
+  @UI.identification: [{ position: 150 }]
+  OpenQuantity;
+  @EndUserText.label: 'Ordered Qty'
+  OrderedQuantity;
+  @EndUserText.label: 'Confirmed Qty'
+  ConfirmedQuantity;
+  @EndUserText.label: 'Unit'
+  @UI.lineItem: [{ position: 70 }]
+  OrderQuantityUnit;
+  @EndUserText.label: 'Open Qty (Gallons)'
+  @UI.lineItem: [{ position: 80 }]
+  @UI.identification: [{ position: 160 }]
+  QuantityInGallons;
+  @EndUserText.label: 'Gallon Unit'
+  GallonUnit;
+
+  @EndUserText.label: 'Higher-Level Item'
+  HigherLevelItem;
+  @EndUserText.label: 'Kit Header'
+  IsKitHeader;
+  @EndUserText.label: 'Kit Component'
+  IsKitComponent;
+
+  @EndUserText.label: 'Purchase Requisition'
+  PurchaseRequisition;
+  @EndUserText.label: 'Purch. Requisition Item'
+  PurchaseRequisitionItem;
+  @EndUserText.label: 'Purchase Order'
+  @UI.lineItem: [{ position: 90 }]
+  @UI.identification: [{ position: 170 }]
+  PurchaseOrder;
+  @EndUserText.label: 'PO Item'
+  PurchaseOrderItem;
+  @EndUserText.label: 'PO Type'
+  PurchaseOrderType;
+  @EndUserText.label: 'PO Assigned to Sales Order'
+  PoIsAssignedToSalesOrder;
+  @EndUserText.label: 'Goods Supplier (WL)'
+  GoodsSupplierPartner;
+  @EndUserText.label: 'Goods Supplier Name'
+  GoodsSupplierPartnerName;
+  @EndUserText.label: 'PO Goods Supplier'
+  PurchaseOrderGoodsSupplier;
+  @EndUserText.label: 'PO Goods Supplier Name'
+  PurchaseOrderGoodsSupplierName;
+  @EndUserText.label: 'Goods Receipt Posted'
+  HasGoodsReceipt;
+  @EndUserText.label: 'Billing Status'
+  OrderRelatedBillingStatus;
+
+  @EndUserText.label: 'Delivery'
+  @UI.lineItem: [{ position: 100 }]
+  @UI.identification: [{ position: 180 }]
+  Delivery;
+  @EndUserText.label: 'Delivery Not Goods Issued'
+  DeliveryNotGoodsIssued;
+
+  @EndUserText.label: 'Freight Unit'
+  FreightUnit;
+  @EndUserText.label: 'Freight Order'
+  @UI.lineItem: [{ position: 110 }]
+  @UI.identification: [{ position: 190 }]
+  FreightOrder;
+  @EndUserText.label: 'TM Planning Status'
+  TMPlanningStatus;
+  @EndUserText.label: 'FO Lifecycle Status'
+  FreightOrderLifecycleStatus;
+  @EndUserText.label: 'Planned Pickup'
+  @UI.lineItem: [{ position: 120 }]
+  @UI.identification: [{ position: 200 }]
+  PlannedPickupDateTime;
+  @EndUserText.label: 'TM Document Exists'
+  HasTMDocument;
+
+  @EndUserText.label: 'Status Bucket'
+  @UI.lineItem: [{ position: 130 }]
+  @UI.selectionField: [{ position: 60 }]
+  @UI.identification: [{ position: 210 }]
+  StatusBucket;
+
+  @EndUserText.label: 'Third Party Without PO'
+  @UI.lineItem: [{ position: 140 }]
+  @UI.identification: [{ position: 220 }]
+  ThirdPartyWithoutPO;
+  @EndUserText.label: 'PO With Zero Confirmed Qty'
+  @UI.lineItem: [{ position: 150 }]
+  @UI.identification: [{ position: 230 }]
+  ConfirmedQtyZeroWithPO;
+}

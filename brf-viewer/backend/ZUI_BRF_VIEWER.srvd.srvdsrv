@@ -1,0 +1,7 @@
+@EndUserText.label: 'BRF+ Viewer (read-only)'
+define service ZUI_BRF_VIEWER {
+  expose ZI_BRF_CatalogNode   as CatalogTree;
+  expose ZI_BRF_DecisionTable as DecisionTable;
+  expose ZI_BRF_DTColumn      as DecisionTableMeta;
+  expose ZI_BRF_DTRow         as DecisionTableContent;
+}

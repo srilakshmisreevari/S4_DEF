@@ -1,0 +1,30 @@
+//----------------------------------------------------------------------
+// Change log
+// Date       | Author              | Request    | Description
+// 2026-11-17 | Srilakshmi Sreevari | DFDK908431 | Created - access
+//            |                     |            | control for scheduled
+//            |                     |            | orders, same PFCG
+//            |                     |            | mapping as standard
+//            |                     |            | role I_SalesDocumentItem
+//----------------------------------------------------------------------
+// Display authorization (ACTVT 03) on
+//  - V_VBAK_AAT: sales document type (AUART)
+//  - V_VBAK_VKO: sales organization, distribution channel, division
+@EndUserText.label: 'Access control for ZOTC_SCHEDULED_ORDERS'
+@MappingRole: true
+define role ZOTC_SCHEDULED_ORDERS {
+  grant select on ZOTC_SCHEDULED_ORDERS
+    where ( SalesOrderType ) =
+      aspect pfcg_auth ( v_vbak_aat,
+                         auart,
+                         actvt = '03' )
+    and
+          ( OrganizationDivision,
+            SalesOrganization,
+            DistributionChannel ) =
+      aspect pfcg_auth ( v_vbak_vko,
+                         spart,
+                         vkorg,
+                         vtweg,
+                         actvt = '03' );
+}

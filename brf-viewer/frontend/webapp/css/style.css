@@ -1,0 +1,22 @@
+/* Result columns: green background, as in the BRF+ workbench */
+.brfResultColumn,
+td:has(> .brfResultCell),
+.sapMListTblCell:has(> .brfResultCell) {
+  background-color: var(--sapSuccessBackground, #f5faf5);
+}
+
+/* Cells keep the full text visible and wrap long values */
+.brfCell .sapMObjStatusText {
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Current "Find" row */
+.brfFindCurrent {
+  outline: 2px solid var(--sapContent_FocusColor, #0070f2);
+  outline-offset: -2px;
+}
+
+.brfTreePage .sapUiTableCell .sapUiIcon {
+  vertical-align: middle;
+}

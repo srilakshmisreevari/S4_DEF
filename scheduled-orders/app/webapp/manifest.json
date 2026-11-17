@@ -1,0 +1,169 @@
+{
+  "_version": "1.42.0",
+  "sap.app": {
+    "id": "zotc.schedorders",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": { "version": "1.0.0" },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "dataSources": {
+      "mainService": {
+        "uri": "sap/opu/odata4/sap/zui_otc_scheduled_orders_o4/srvd/sap/zui_otc_scheduled_orders/0001/",
+        "type": "OData",
+        "settings": { "odataVersion": "4.0" }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "display": {
+          "semanticObject": "ScheduledOrders",
+          "action": "display",
+          "title": "{{appTitle}}",
+          "signature": { "parameters": {}, "additionalParameters": "allowed" }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "deviceTypes": { "desktop": true, "tablet": true, "phone": true },
+    "fullWidth": true
+  },
+  "sap.cloud": {
+    "public": true,
+    "service": "zotc.schedorders.service"
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.108.0",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.fe.templates": {},
+        "sap.viz": {},
+        "sap.ui.mdc": {}
+      }
+    },
+    "contentDensities": { "compact": true, "cozy": true },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": { "bundleName": "zotc.schedorders.i18n.i18n" }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "synchronizationMode": "None",
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      }
+    },
+    "routing": {
+      "config": {},
+      "routes": [
+        {
+          "pattern": ":?query:",
+          "name": "TerminalSummaryList",
+          "target": "TerminalSummaryList"
+        },
+        {
+          "pattern": "TerminalSummary({key}):?query:",
+          "name": "TerminalSummaryObjectPage",
+          "target": "TerminalSummaryObjectPage"
+        },
+        {
+          "pattern": "TerminalSummary({key})/_Orders({key2}):?query:",
+          "name": "ScheduledOrdersObjectPage",
+          "target": "ScheduledOrdersObjectPage"
+        }
+      ],
+      "targets": {
+        "TerminalSummaryList": {
+          "type": "Component",
+          "id": "TerminalSummaryList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/TerminalSummary",
+              "variantManagement": "Page",
+              "defaultTemplateAnnotationPath": "com.sap.vocabularies.UI.v1.SelectionPresentationVariant#Default",
+              "views": {
+                "paths": [
+                  {
+                    "primary": [
+                      { "annotationPath": "com.sap.vocabularies.UI.v1.PresentationVariant#Default" }
+                    ],
+                    "secondary": [
+                      { "annotationPath": "com.sap.vocabularies.UI.v1.PresentationVariant#Default" }
+                    ],
+                    "defaultPath": "both"
+                  }
+                ]
+              },
+              "navigation": {
+                "TerminalSummary": {
+                  "detail": { "route": "TerminalSummaryObjectPage" }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.SelectionFields": {
+                  "layout": "CompactVisual",
+                  "initialLayout": "Visual"
+                },
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable",
+                    "enableExport": true,
+                    "selectionMode": "None"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "TerminalSummaryObjectPage": {
+          "type": "Component",
+          "id": "TerminalSummaryObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "contextPath": "/TerminalSummary",
+              "editableHeaderContent": false,
+              "navigation": {
+                "_Orders": {
+                  "detail": { "route": "ScheduledOrdersObjectPage" }
+                }
+              },
+              "controlConfiguration": {
+                "_Orders/@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable",
+                    "enableExport": true,
+                    "selectionMode": "None",
+                    "personalization": { "column": true, "sort": true, "filter": true }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ScheduledOrdersObjectPage": {
+          "type": "Component",
+          "id": "ScheduledOrdersObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "contextPath": "/TerminalSummary/_Orders",
+              "editableHeaderContent": false
+            }
+          }
+        }
+      }
+    }
+  }
+}

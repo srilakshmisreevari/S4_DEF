@@ -1,0 +1,174 @@
+//----------------------------------------------------------------------
+// Change log
+// Date       | Author              | Request    | Description
+// 2026-11-17 | Srilakshmi Sreevari | DFDK908431 | Created - analytical list
+//            |                     |            | page: main chart, visual
+//            |                     |            | filters, summary table,
+//            |                     |            | object page with lines
+// 2026-11-17 | Srilakshmi Sreevari | DFDK908431 | Labels for the sales area
+//            |                     |            | keys; SalesOrganization
+//            |                     |            | as selection field
+//----------------------------------------------------------------------
+// Qualifiers used by the Fiori Elements V4 ALP:
+//  - main chart MainChart, presentation variant Default,
+//    selection variant NextSevenDays, selection presentation variant
+//    Default (DueWindow = 'Next 7 days');
+//  - visual filters (value list on this entity itself):
+//      SupplyType: VFSupplyTypeGallons (donut), VFSupplyTypeOrders (donut)
+//      TerminalID: VFTerminalGallons (bar),     VFTerminalOrders (bar)
+@Metadata.layer: #CUSTOMER
+@UI.headerInfo: { typeName: 'Terminal Summary', typeNamePlural: 'Terminal Summary',
+                  title: { type: #STANDARD, value: 'TerminalName' },
+                  description: { type: #STANDARD, value: 'SoldToPartyName' } }
+@UI.chart: [
+  { qualifier: 'MainChart', title: 'Scheduled Quantity by Terminal', chartType: #COLUMN,
+    dimensions: [ 'TerminalID' ],
+    measures: [ 'QuantityInGallons', 'NumberOfOrders' ],
+    dimensionAttributes: [{ dimension: 'TerminalID', role: #CATEGORY }],
+    measureAttributes: [{ measure: 'QuantityInGallons', role: #AXIS_1 },
+                        { measure: 'NumberOfOrders',    role: #AXIS_2 }] },
+  { qualifier: 'VFSupplyTypeGallons', title: 'Gallons by Supply Type', chartType: #DONUT,
+    dimensions: [ 'SupplyType' ], measures: [ 'QuantityInGallons' ],
+    dimensionAttributes: [{ dimension: 'SupplyType', role: #CATEGORY }],
+    measureAttributes: [{ measure: 'QuantityInGallons', role: #AXIS_1 }] },
+  { qualifier: 'VFSupplyTypeOrders', title: 'Orders by Supply Type', chartType: #DONUT,
+    dimensions: [ 'SupplyType' ], measures: [ 'NumberOfOrders' ],
+    dimensionAttributes: [{ dimension: 'SupplyType', role: #CATEGORY }],
+    measureAttributes: [{ measure: 'NumberOfOrders', role: #AXIS_1 }] },
+  { qualifier: 'VFTerminalGallons', title: 'Gallons by Terminal', chartType: #BAR,
+    dimensions: [ 'TerminalID' ], measures: [ 'QuantityInGallons' ],
+    dimensionAttributes: [{ dimension: 'TerminalID', role: #CATEGORY }],
+    measureAttributes: [{ measure: 'QuantityInGallons', role: #AXIS_1 }] },
+  { qualifier: 'VFTerminalOrders', title: 'Orders by Terminal', chartType: #BAR,
+    dimensions: [ 'TerminalID' ], measures: [ 'NumberOfOrders' ],
+    dimensionAttributes: [{ dimension: 'TerminalID', role: #CATEGORY }],
+    measureAttributes: [{ measure: 'NumberOfOrders', role: #AXIS_1 }] } ]
+@UI.presentationVariant: [
+  { qualifier: 'Default', text: 'Scheduled Orders by Terminal',
+    sortOrder: [{ by: 'QuantityInGallons', direction: #DESC }],
+    visualizations: [{ type: #AS_CHART, qualifier: 'MainChart' },
+                     { type: #AS_LINEITEM }] },
+  { qualifier: 'VFSupplyTypeGallons', visualizations: [{ type: #AS_CHART, qualifier: 'VFSupplyTypeGallons' }] },
+  { qualifier: 'VFSupplyTypeOrders',  visualizations: [{ type: #AS_CHART, qualifier: 'VFSupplyTypeOrders' }] },
+  { qualifier: 'VFTerminalGallons',   sortOrder: [{ by: 'QuantityInGallons', direction: #DESC }],
+    visualizations: [{ type: #AS_CHART, qualifier: 'VFTerminalGallons' }] },
+  { qualifier: 'VFTerminalOrders',    sortOrder: [{ by: 'NumberOfOrders', direction: #DESC }],
+    visualizations: [{ type: #AS_CHART, qualifier: 'VFTerminalOrders' }] } ]
+@UI.selectionVariant: [
+  { qualifier: 'NextSevenDays', text: 'Due in the Next 7 Days',
+    filter: 'DueWindow EQ \'Next 7 days\'' } ]
+@UI.selectionPresentationVariant: [
+  { qualifier: 'Default', text: 'Scheduled Orders - Next 7 Days',
+    presentationVariantQualifier: 'Default', selectionVariantQualifier: 'NextSevenDays' } ]
+annotate entity ZC_OTC_SCHED_TERMINAL_SUM with
+{
+  @EndUserText.label: 'Supply Type'
+  @UI.facet: [
+    { id: 'Summary',    purpose: #STANDARD, type: #IDENTIFICATION_REFERENCE,
+      label: 'Summary', position: 10 },
+    { id: 'OrderLines', purpose: #STANDARD, type: #LINEITEM_REFERENCE,
+      label: 'Order Lines', position: 20, targetElement: '_Orders' } ]
+  @UI.selectionField: [{ position: 20 }]
+  @UI.identification: [{ position: 10 }]
+  @Consumption.valueHelpDefinition: [
+    { entity: { name: 'ZC_OTC_SCHED_TERMINAL_SUM', element: 'SupplyType' },
+      presentationVariantQualifier: 'VFSupplyTypeGallons' },
+    { qualifier: 'Orders',
+      entity: { name: 'ZC_OTC_SCHED_TERMINAL_SUM', element: 'SupplyType' },
+      presentationVariantQualifier: 'VFSupplyTypeOrders' } ]
+  SupplyType;
+
+  @EndUserText.label: 'Terminal'
+  @UI.textArrangement: #TEXT_FIRST
+  @UI.lineItem: [{ position: 10 }]
+  @UI.selectionField: [{ position: 30 }]
+  @UI.identification: [{ position: 20 }]
+  @Consumption.valueHelpDefinition: [
+    { entity: { name: 'ZC_OTC_SCHED_TERMINAL_SUM', element: 'TerminalID' },
+      presentationVariantQualifier: 'VFTerminalGallons' },
+    { qualifier: 'Orders',
+      entity: { name: 'ZC_OTC_SCHED_TERMINAL_SUM', element: 'TerminalID' },
+      presentationVariantQualifier: 'VFTerminalOrders' } ]
+  TerminalID;
+
+  @EndUserText.label: 'Customer'
+  @UI.textArrangement: #TEXT_FIRST
+  @UI.lineItem: [{ position: 20 }]
+  @UI.selectionField: [{ position: 40 }]
+  @UI.identification: [{ position: 30 }]
+  SoldToParty;
+
+  @EndUserText.label: 'Ship-To Party'
+  @UI.textArrangement: #TEXT_FIRST
+  @UI.identification: [{ position: 40 }]
+  ShipToParty;
+
+  @EndUserText.label: 'Status Bucket'
+  @UI.lineItem: [{ position: 80 }]
+  @UI.selectionField: [{ position: 50 }]
+  @UI.identification: [{ position: 90 }]
+  StatusBucket;
+
+  @EndUserText.label: 'Due Window'
+  @UI.selectionField: [{ position: 10 }]
+  @UI.identification: [{ position: 60 }]
+  @Consumption.filter.defaultValue: 'Next 7 days'
+  DueWindow;
+
+  @EndUserText.label: 'Unit'
+  @UI.lineItem: [{ position: 60 }]
+  OrderQuantityUnit;
+
+  // >>> 2026-11-17 Srilakshmi Sreevari DFDK908431 - sales area (DCL)
+  // Not in the default lineItem (hidden in the table)
+  @EndUserText.label: 'Order Type'
+  SalesOrderType;
+
+  @EndUserText.label: 'Sales Organization'
+  @UI.selectionField: [{ position: 60 }]
+  SalesOrganization;
+
+  @EndUserText.label: 'Distribution Channel'
+  DistributionChannel;
+
+  @EndUserText.label: 'Division'
+  OrganizationDivision;
+  // <<< 2026-11-17 Srilakshmi Sreevari DFDK908431
+
+  @EndUserText.label: 'Terminal Name'
+  TerminalName;
+  @EndUserText.label: 'Customer Name'
+  SoldToPartyName;
+  @EndUserText.label: 'Ship-To Name'
+  ShipToPartyName;
+  @EndUserText.label: 'Ship-To City'
+  ShipToCity;
+  @EndUserText.label: 'Ship-To Region'
+  ShipToRegion;
+
+  @EndUserText.label: 'Destination'
+  @UI.lineItem: [{ position: 30 }]
+  @UI.identification: [{ position: 50 }]
+  Destination;
+
+  @EndUserText.label: 'Gallon Unit'
+  GallonUnit;
+
+  @EndUserText.label: 'Orders'
+  @UI.lineItem: [{ position: 40 }]
+  @UI.identification: [{ position: 70 }]
+  NumberOfOrders;
+
+  @EndUserText.label: 'Order Lines'
+  NumberOfLines;
+
+  @EndUserText.label: 'Open Qty'
+  @UI.lineItem: [{ position: 50 }]
+  @UI.identification: [{ position: 80 }]
+  OpenQuantity;
+
+  @EndUserText.label: 'Gallons'
+  @UI.lineItem: [{ position: 70 }]
+  @UI.identification: [{ position: 85 }]
+  QuantityInGallons;
+}

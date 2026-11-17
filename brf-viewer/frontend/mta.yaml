@@ -1,0 +1,112 @@
+_schema-version: "3.2"
+ID: zbrf-viewer
+description: Read-only BRF+ catalog and decision table viewer
+version: 1.0.0
+
+# Deploys the UI5 app to the HTML5 Application Repository for use with the
+# managed approuter (SAP Build Work Zone). The OData service stays in DFD and
+# is reached through the Cloud Connector via destination DFD_BRF_VIEWER.
+
+modules:
+  - name: zbrf-viewer-destination-content
+    type: com.sap.application.content
+    requires:
+      - name: zbrf-viewer-destination-service
+        parameters:
+          content-target: true
+      - name: zbrf-viewer-repo-host
+        parameters:
+          service-key:
+            name: zbrf-viewer-repo-host-key
+      - name: zbrf-viewer-uaa
+        parameters:
+          service-key:
+            name: zbrf-viewer-uaa-key
+    parameters:
+      content:
+        instance:
+          destinations:
+            - Name: zbrf_viewer_repo_host
+              ServiceInstanceName: zbrf-viewer-html5-srv
+              ServiceKeyName: zbrf-viewer-repo-host-key
+              sap.cloud.service: zbrf.viewer.service
+            - Name: zbrf_viewer_uaa
+              Authentication: OAuth2UserTokenExchange
+              ServiceInstanceName: zbrf-viewer-xsuaa-srv
+              ServiceKeyName: zbrf-viewer-uaa-key
+              sap.cloud.service: zbrf.viewer.service
+          existing_destinations_policy: update
+    build-parameters:
+      no-source: true
+
+  - name: zbrf-viewer-app-content
+    type: com.sap.application.content
+    path: .
+    requires:
+      - name: zbrf-viewer-repo-host
+        parameters:
+          content-target: true
+    build-parameters:
+      build-result: resources
+      requires:
+        - artifacts:
+            - zbrfviewer.zip
+          name: zbrfviewer
+          target-path: resources/
+
+  - name: zbrfviewer
+    type: html5
+    path: .
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm install
+        - npm run build:cf
+      supported-platforms: []
+
+resources:
+  - name: zbrf-viewer-destination-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: destination
+      service-plan: lite
+      service-name: zbrf-viewer-destination-service
+      config:
+        HTML5Runtime_enabled: true
+        version: 1.0.0
+        init_data:
+          instance:
+            existing_destinations_policy: update
+            destinations:
+              - Name: ui5
+                Type: HTTP
+                URL: https://ui5.sap.com
+                ProxyType: Internet
+                Authentication: NoAuthentication
+  - name: zbrf-viewer-repo-host
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-host
+      service-name: zbrf-viewer-html5-srv
+  - name: zbrf-viewer-uaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      service-name: zbrf-viewer-xsuaa-srv
+      config:
+        xsappname: zbrf-viewer-${space}
+        tenant-mode: dedicated
+        oauth2-configuration:
+          # Replace <region> with the subaccount's Cloud Foundry region (e.g. us10)
+          # and add the Work Zone site URL if it is on a different domain.
+          redirect-uris:
+            - https://*.cfapps.<region>.hana.ondemand.com/**
+            - https://*.launchpad.cfapps.<region>.hana.ondemand.com/**
+            - https://*.build.cloud.sap/**
+
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true

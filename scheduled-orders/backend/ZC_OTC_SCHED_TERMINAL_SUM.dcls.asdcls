@@ -1,0 +1,33 @@
+//----------------------------------------------------------------------
+// Change log
+// Date       | Author              | Request    | Description
+// 2026-11-17 | Srilakshmi Sreevari | DFDK908431 | Created - access
+//            |                     |            | control for the scheduled
+//            |                     |            | orders summary, same PFCG
+//            |                     |            | mapping as standard
+//            |                     |            | role I_SalesDocument
+//----------------------------------------------------------------------
+// Display authorization (ACTVT 03) on
+//  - V_VBAK_AAT: sales document type (AUART)
+//  - V_VBAK_VKO: sales organization, distribution channel, division
+// The sales area fields are keys of the summary view, so each summary
+// row belongs to exactly one order type / sales area and the check is
+// exact (same result as DCL ZOTC_SCHEDULED_ORDERS on the order lines).
+@EndUserText.label: 'Access control for ZC_OTC_SCHED_TERMINAL_SUM'
+@MappingRole: true
+define role ZC_OTC_SCHED_TERMINAL_SUM {
+  grant select on ZC_OTC_SCHED_TERMINAL_SUM
+    where ( SalesOrderType ) =
+      aspect pfcg_auth ( v_vbak_aat,
+                         auart,
+                         actvt = '03' )
+    and
+          ( OrganizationDivision,
+            SalesOrganization,
+            DistributionChannel ) =
+      aspect pfcg_auth ( v_vbak_vko,
+                         spart,
+                         vkorg,
+                         vtweg,
+                         actvt = '03' );
+}

@@ -1,0 +1,29 @@
+specVersion: "3.0"
+metadata:
+  name: zbrf.viewer
+type: application
+framework:
+  name: SAPUI5
+  version: "1.108.0"
+  libraries:
+    - name: sap.m
+    - name: sap.f
+    - name: sap.ui.core
+    - name: sap.ui.layout
+    - name: sap.ui.table
+    - name: sap.ui.comp
+    - name: sap.ui.export
+    - name: themelib_sap_horizon
+server:
+  customMiddleware:
+    # Local run only: forwards /sap/... calls to DFD. Replace the URL with your
+    # system and log on when the browser prompts.
+    - name: fiori-tools-proxy
+      afterMiddleware: compression
+      configuration:
+        ignoreCertError: false
+        backend:
+          - path: /sap
+            url: https://asapcsdfd01:1443
+            destination: DFD_BRF_VIEWER   # used instead of url in Business Application Studio
+            client: "120"

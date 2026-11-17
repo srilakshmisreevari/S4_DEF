@@ -1,0 +1,5 @@
+@EndUserText.label: 'Current scheduled orders (read-only)'
+define service ZUI_OTC_SCHEDULED_ORDERS {
+  expose ZOTC_SCHEDULED_ORDERS as ScheduledOrders;
+  expose ZC_OTC_SCHED_TERMINAL_SUM as TerminalSummary;
+}

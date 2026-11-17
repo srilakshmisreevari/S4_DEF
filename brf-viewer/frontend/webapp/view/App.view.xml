@@ -1,0 +1,275 @@
+<mvc:View
+  controllerName="zbrf.viewer.controller.App"
+  xmlns="sap.m"
+  xmlns:mvc="sap.ui.core.mvc"
+  xmlns:core="sap.ui.core"
+  xmlns:f="sap.f"
+  xmlns:form="sap.ui.layout.form"
+  xmlns:t="sap.ui.table"
+  xmlns:fb="sap.ui.comp.filterbar"
+  displayBlock="true"
+  height="100%">
+
+  <App id="brfApp">
+    <f:FlexibleColumnLayout
+      id="fcl"
+      layout="{view>/layout}"
+      backgroundDesign="Solid">
+
+      <!-- ===================== Left pane: catalog tree ===================== -->
+      <f:beginColumnPages>
+        <Page id="treePage" title="{i18n>treeTitle}" class="brfTreePage">
+          <subHeader>
+            <OverflowToolbar ariaLabelledBy="treeSearch">
+              <SearchField
+                id="treeSearch"
+                width="100%"
+                placeholder="{i18n>treeSearchPlaceholder}"
+                tooltip="{i18n>treeSearchPlaceholder}"
+                search=".onTreeSearch"
+                liveChange=".onTreeSearchLive">
+                <layoutData><OverflowToolbarLayoutData minWidth="10rem" shrinkable="true"/></layoutData>
+              </SearchField>
+              <Button icon="sap-icon://expand-group" tooltip="{i18n>expandAll}" press=".onExpandAll"
+                ariaDescribedBy="treeTable"/>
+              <Button icon="sap-icon://collapse-group" tooltip="{i18n>collapseAll}" press=".onCollapseAll"
+                ariaDescribedBy="treeTable"/>
+              <Button icon="sap-icon://refresh" tooltip="{i18n>refresh}" press=".onRefreshTree"/>
+            </OverflowToolbar>
+          </subHeader>
+          <content>
+            <t:TreeTable
+              id="treeTable"
+              rows="{path: 'tree>/nodes', parameters: {arrayNames: ['children']}}"
+              selectionMode="Single"
+              selectionBehavior="RowOnly"
+              enableSelectAll="false"
+              visibleRowCountMode="Auto"
+              minAutoRowCount="10"
+              ariaLabelledBy="treePage"
+              busy="{view>/treeBusy}"
+              busyIndicatorDelay="0"
+              noData="{i18n>treeNoData}"
+              rowSelectionChange=".onTreeSelect"
+              toggleOpenState=".onTreeToggle">
+              <t:columns>
+                <t:Column label="{i18n>colCatalogStructure}" width="auto" minWidth="200">
+                  <t:template>
+                    <HBox alignItems="Center" renderType="Bare">
+                      <core:Icon
+                        src="{path: 'tree>NodeType', formatter: '.formatter.nodeIcon'}"
+                        tooltip="{path: 'tree>NodeType', formatter: '.formatNodeTypeText'}"
+                        class="sapUiTinyMarginEnd"/>
+                      <Text text="{tree>Name}" tooltip="{tree>Description}" wrapping="false"/>
+                    </HBox>
+                  </t:template>
+                </t:Column>
+                <t:Column label="{i18n>colTechnical}" width="3rem" hAlign="Center"
+                  tooltip="{i18n>colTechnicalTooltip}">
+                  <t:template>
+                    <core:Icon src="sap-icon://chain-link" visible="{= !!${tree>IsTechnical} }"
+                      tooltip="{i18n>colTechnicalTooltip}"/>
+                  </t:template>
+                </t:Column>
+                <t:Column label="{i18n>colStatus}" width="4.5rem" hAlign="Center">
+                  <t:template>
+                    <core:Icon
+                      src="sap-icon://color-fill"
+                      color="{path: 'tree>StatusCriticality', formatter: '.formatter.statusColor'}"
+                      visible="{= !!${tree>Status} }"
+                      tooltip="{path: 'tree>Status', formatter: '.formatStatusText'}"
+                      alt="{path: 'tree>Status', formatter: '.formatStatusText'}"/>
+                  </t:template>
+                </t:Column>
+              </t:columns>
+            </t:TreeTable>
+          </content>
+        </Page>
+      </f:beginColumnPages>
+
+      <!-- ===================== Right pane: details ===================== -->
+      <f:midColumnPages>
+        <Page id="detailPage"
+          showNavButton="{device>/system/phone}"
+          navButtonPress=".onNavBack"
+          title="{view>/selected/Name}">
+          <content>
+
+            <!-- Start state: nothing selected -->
+            <IllustratedMessage
+              visible="{= ${view>/mode} === 'none' }"
+              illustrationType="sapIllus-NoEntries"
+              title="{i18n>startTitle}"
+              description="{i18n>startText}"/>
+
+            <!-- Catalog or folder: summary only, no table content -->
+            <VBox visible="{= ${view>/mode} === 'folder' }" class="sapUiResponsiveMargin">
+              <ObjectHeader
+                title="{view>/selected/Name}"
+                number="{view>/selected/ChildCount}"
+                numberUnit="{i18n>children}"
+                backgroundDesign="Transparent">
+                <attributes>
+                  <ObjectAttribute title="{i18n>nodeType}" text="{path: 'view>/selected/NodeType', formatter: '.formatNodeTypeText'}"/>
+                  <ObjectAttribute title="{i18n>description}" text="{view>/selected/Description}"/>
+                  <ObjectAttribute title="{i18n>catalog}" text="{view>/selected/CatalogName}"/>
+                </attributes>
+              </ObjectHeader>
+              <List
+                headerText="{i18n>childObjects}"
+                items="{view>/selected/children}"
+                noDataText="{i18n>noChildren}"
+                mode="None">
+                <StandardListItem
+                  title="{view>Name}"
+                  description="{view>Description}"
+                  icon="{path: 'view>NodeType', formatter: '.formatter.nodeIcon'}"
+                  info="{path: 'view>Status', formatter: '.formatStatusText'}"
+                  infoState="{path: 'view>StatusCriticality', formatter: '.formatter.valueState'}"
+                  type="{= ${view>NodeType} === 'DT' ? 'Navigation' : 'Inactive' }"
+                  press=".onChildPress"/>
+              </List>
+            </VBox>
+
+            <!-- Decision table -->
+            <VBox id="dtBox" visible="{= ${view>/mode} === 'dt' }" busy="{view>/dtBusy}" busyIndicatorDelay="0"
+              renderType="Bare">
+              <ObjectHeader
+                id="dtHeader"
+                responsive="true"
+                title="{parts: ['dt>/Name', 'dt>/Description'], formatter: '.formatDtTitle'}"
+                backgroundDesign="Solid"
+                class="sapUiNoContentPadding">
+                <statuses>
+                  <ObjectStatus text="{dt>/StatusText}"
+                    state="{path: 'dt>/StatusCriticality', formatter: '.formatter.valueState'}"
+                    inverted="true"/>
+                  <ObjectStatus title="{i18n>type}" text="{dt>/ObjectTypeText}"/>
+                </statuses>
+                <attributes>
+                  <ObjectAttribute title="{i18n>rows}" text="{dt>/TotalRows}"/>
+                  <ObjectAttribute title="{i18n>columns}" text="{dt>/ColumnCount}"/>
+                </attributes>
+              </ObjectHeader>
+
+              <MessageStrip
+                visible="{= !!${dt>/ColumnsTruncated} }"
+                text="{i18n>columnsTruncated}"
+                type="Warning" showIcon="true" class="sapUiSmallMargin"/>
+
+              <!-- General -->
+              <Panel expandable="true" expanded="false" headerText="{i18n>general}" width="auto"
+                class="sapUiNoContentPadding">
+                <form:SimpleForm
+                  editable="false"
+                  layout="ResponsiveGridLayout"
+                  labelSpanXL="4" labelSpanL="4" labelSpanM="4" labelSpanS="12"
+                  columnsXL="2" columnsL="2" columnsM="1"
+                  singleContainerFullSize="false">
+                  <form:content>
+                    <core:Title text="{i18n>identification}"/>
+                    <Label text="{i18n>id}"/>
+                    <Text text="{dt>/DecisionTableId}"/>
+                    <Label text="{i18n>name}"/>
+                    <Text text="{dt>/Name}"/>
+                    <Label text="{i18n>description}"/>
+                    <Text text="{dt>/Description}"/>
+                    <Label text="{i18n>application}"/>
+                    <Text text="{dt>/ApplicationName}"/>
+                    <Label text="{i18n>package}"/>
+                    <Text text="{dt>/DevPackage}"/>
+                    <core:Title text="{i18n>changeInfo}"/>
+                    <Label text="{i18n>createdBy}"/>
+                    <Text text="{dt>/CreatedBy}"/>
+                    <Label text="{i18n>createdOn}"/>
+                    <Text text="{parts: ['dt>/CreatedOn', 'dt>/CreatedTime'], formatter: '.formatter.dateTime'}"/>
+                    <Label text="{i18n>changedBy}"/>
+                    <Text text="{dt>/ChangedBy}"/>
+                    <Label text="{i18n>changedOn}"/>
+                    <Text text="{parts: ['dt>/ChangedOn', 'dt>/ChangedTime'], formatter: '.formatter.dateTime'}"/>
+                    <Label text="{i18n>status}"/>
+                    <ObjectStatus text="{dt>/StatusText}"
+                      state="{path: 'dt>/StatusCriticality', formatter: '.formatter.valueState'}"/>
+                    <Label text="{i18n>multipleMatch}"/>
+                    <Text text="{path: 'dt>/MultipleMatch', formatter: '.formatYesNo'}"/>
+                  </form:content>
+                </form:SimpleForm>
+              </Panel>
+
+              <!-- Detail -->
+              <Panel expandable="true" expanded="true" headerText="{i18n>detail}" width="auto"
+                class="sapUiNoContentPadding">
+
+                <!-- Variant handling (per decision table, saved in this browser) -->
+                <OverflowToolbar style="Clear" ariaLabelledBy="variantSelect">
+                  <Label id="variantLabel" text="{i18n>variant}" labelFor="variantSelect"/>
+                  <Select id="variantSelect"
+                    width="14rem"
+                    selectedKey="{view>/variantKey}"
+                    items="{view>/variants}"
+                    change=".onVariantSelect"
+                    ariaLabelledBy="variantLabel">
+                    <core:Item key="{view>key}" text="{view>name}"/>
+                  </Select>
+                  <Button text="{i18n>saveVariant}" icon="sap-icon://save" press=".onSaveVariant"/>
+                  <Button icon="sap-icon://delete" tooltip="{i18n>deleteVariant}" press=".onDeleteVariant"
+                    enabled="{= ${view>/variantKey} !== 'standard' }"/>
+                </OverflowToolbar>
+
+                <fb:FilterBar
+                  id="filterBar"
+                  useToolbar="false"
+                  showGoOnFB="true"
+                  showClearOnFB="true"
+                  showFilterConfiguration="false"
+                  search=".onFilterGo"
+                  clear=".onFilterClear"/>
+
+                <Title text="{i18n>tableContents}" level="H3" class="sapUiSmallMarginBegin sapUiSmallMarginTop"/>
+
+                <Table
+                  id="contentTable"
+                  growing="true"
+                  growingThreshold="100"
+                  growingScrollToLoad="true"
+                  sticky="ColumnHeaders,HeaderToolbar"
+                  mode="None"
+                  alternateRowColors="true"
+                  popinLayout="GridSmall"
+                  autoPopinMode="true"
+                  updateFinished=".onTableUpdated"
+                  noDataText="{i18n>tableNoData}"
+                  ariaLabelledBy="dtHeader">
+                  <headerToolbar>
+                    <OverflowToolbar>
+                      <Title id="tableTitle" text="{view>/tableTitle}" level="H4"/>
+                      <ToolbarSpacer/>
+                      <Label text="{i18n>find}" labelFor="findField"/>
+                      <SearchField id="findField" width="12rem" value="{view>/findTerm}"
+                        liveChange=".onFindLive" search=".onFindNext" showSearchButton="false"
+                        placeholder="{i18n>find}"/>
+                      <Button text="{i18n>next}" press=".onFindNext" enabled="{= !!${view>/findTerm} }"/>
+                      <Button text="{i18n>previous}" press=".onFindPrevious" enabled="{= !!${view>/findTerm} }"/>
+                      <ToolbarSeparator/>
+                      <Button icon="sap-icon://sort" tooltip="{i18n>sortGroup}" press=".onOpenViewSettings"/>
+                      <Button icon="sap-icon://action-settings" text="{i18n>tableSettings}" press=".onOpenColumnSettings"/>
+                      <MenuButton icon="sap-icon://excel-attachment" tooltip="{i18n>export}" text="{i18n>export}">
+                        <menu>
+                          <Menu>
+                            <MenuItem text="{i18n>exportExcel}" icon="sap-icon://excel-attachment" press=".onExportExcel"/>
+                            <MenuItem text="{i18n>exportCsv}" icon="sap-icon://document-text" press=".onExportCsv"/>
+                          </Menu>
+                        </menu>
+                      </MenuButton>
+                      <Button icon="sap-icon://refresh" tooltip="{i18n>refresh}" press=".onRefreshTable"/>
+                    </OverflowToolbar>
+                  </headerToolbar>
+                </Table>
+              </Panel>
+            </VBox>
+          </content>
+        </Page>
+      </f:midColumnPages>
+    </f:FlexibleColumnLayout>
+  </App>
+</mvc:View>

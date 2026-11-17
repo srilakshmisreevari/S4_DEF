@@ -1,0 +1,112 @@
+_schema-version: "3.2"
+ID: zotc-schedorders
+description: Scheduled orders by terminal, customer and destination
+version: 1.0.0
+
+# Deploys the app to the HTML5 Application Repository for the managed approuter
+# (SAP Build Work Zone). The OData service stays in DFD and is reached through
+# the Cloud Connector via destination DFD_OTC_SCHED_ORDERS.
+
+modules:
+  - name: zotc-schedorders-destination-content
+    type: com.sap.application.content
+    requires:
+      - name: zotc-schedorders-destination-service
+        parameters:
+          content-target: true
+      - name: zotc-schedorders-repo-host
+        parameters:
+          service-key:
+            name: zotc-schedorders-repo-host-key
+      - name: zotc-schedorders-uaa
+        parameters:
+          service-key:
+            name: zotc-schedorders-uaa-key
+    parameters:
+      content:
+        instance:
+          destinations:
+            - Name: zotc_schedorders_repo_host
+              ServiceInstanceName: zotc-schedorders-html5-srv
+              ServiceKeyName: zotc-schedorders-repo-host-key
+              sap.cloud.service: zotc.schedorders.service
+            - Name: zotc_schedorders_uaa
+              Authentication: OAuth2UserTokenExchange
+              ServiceInstanceName: zotc-schedorders-xsuaa-srv
+              ServiceKeyName: zotc-schedorders-uaa-key
+              sap.cloud.service: zotc.schedorders.service
+          existing_destinations_policy: update
+    build-parameters:
+      no-source: true
+
+  - name: zotc-schedorders-app-content
+    type: com.sap.application.content
+    path: .
+    requires:
+      - name: zotc-schedorders-repo-host
+        parameters:
+          content-target: true
+    build-parameters:
+      build-result: resources
+      requires:
+        - artifacts:
+            - zotcschedorders.zip
+          name: zotcschedorders
+          target-path: resources/
+
+  - name: zotcschedorders
+    type: html5
+    path: .
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm install
+        - npm run build:cf
+      supported-platforms: []
+
+resources:
+  - name: zotc-schedorders-destination-service
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: destination
+      service-plan: lite
+      service-name: zotc-schedorders-destination-service
+      config:
+        HTML5Runtime_enabled: true
+        version: 1.0.0
+        init_data:
+          instance:
+            existing_destinations_policy: update
+            destinations:
+              - Name: ui5
+                Type: HTTP
+                URL: https://ui5.sap.com
+                ProxyType: Internet
+                Authentication: NoAuthentication
+  - name: zotc-schedorders-repo-host
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-host
+      service-name: zotc-schedorders-html5-srv
+  - name: zotc-schedorders-uaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      service-name: zotc-schedorders-xsuaa-srv
+      config:
+        xsappname: zotc-schedorders-${space}
+        tenant-mode: dedicated
+        oauth2-configuration:
+          # Replace <region> with the subaccount's Cloud Foundry region (e.g. us10)
+          # and add the Work Zone site URL if it is on a different domain.
+          redirect-uris:
+            - https://*.cfapps.<region>.hana.ondemand.com/**
+            - https://*.launchpad.cfapps.<region>.hana.ondemand.com/**
+            - https://*.build.cloud.sap/**
+
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true

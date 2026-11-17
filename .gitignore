@@ -1,0 +1,7 @@
+node_modules/
+dist/
+resources/
+mta_archives/
+*.mtar
+.env
+default-env.json

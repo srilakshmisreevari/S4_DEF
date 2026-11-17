@@ -1,0 +1,27 @@
+specVersion: "3.0"
+metadata:
+  name: zotc.schedorders
+type: application
+framework:
+  name: SAPUI5
+  version: "1.108.0"
+  libraries:
+    - name: sap.m
+    - name: sap.ui.core
+    - name: sap.fe.templates
+    - name: sap.viz
+    - name: sap.ui.mdc
+    - name: themelib_sap_horizon
+server:
+  customMiddleware:
+    # Local run only: forwards /sap/... calls to DFD. Log on when the browser prompts.
+    # The client must be one where the service is published (100, or 120 after SCC1).
+    - name: fiori-tools-proxy
+      afterMiddleware: compression
+      configuration:
+        ignoreCertError: false
+        backend:
+          - path: /sap
+            url: https://asapcsdfd01:1443
+            destination: DFD_OTC_SCHED_ORDERS   # used instead of url in Business Application Studio
+            client: "120"
