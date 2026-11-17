@@ -101,7 +101,7 @@ resources:
         tenant-mode: dedicated
         oauth2-configuration:
           # Cloud Foundry region us10.
-          # and add the Work Zone site URL if it is on a different domain.
+          # Add the Work Zone site URL if it is on a different domain.
           redirect-uris:
             - https://*.cfapps.us10.hana.ondemand.com/**
             - https://*.launchpad.cfapps.us10.hana.ondemand.com/**
